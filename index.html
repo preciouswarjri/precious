@@ -1,18 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Live Webcam Stream</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Webcam Feed</title>
 </head>
 <body>
-    <h1>Live Webcam Stream</h1>
-    <video id="video" autoplay></video>
+    <h1>Live Webcam Feed</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+
     <script>
         const video = document.getElementById('video');
-        const ws = new WebSocket('wss://10.42.0.1:1880/data');
+        const wss = new WebSocket('wss://10.42.0.1:1880/data');
 
-        ws.onmessage = function(event) {
+        wss.onopen = function() {
+            console.log('WebSocket connection established');
+        };
+
+        wss.onmessage = function(event) {
+            console.log('WebSocket message received');
             const blob = new Blob([event.data], { type: 'video/webm' });
             video.src = URL.createObjectURL(blob);
+            video.play();
+        };
+
+        wss.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+
+        wss.onclose = function() {
+            console.log('WebSocket connection closed');
         };
     </script>
 </body>
