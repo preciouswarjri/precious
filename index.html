@@ -11,24 +11,24 @@
 
     <script>
         const video = document.getElementById('video');
-        const ws = new WebSocket('wss:/10.42.0.1:1880/data');
+        const wss = new WebSocket('wss:/10.42.0.1:1880/data');
 
-        ws.onopen = function() {
+        wss.onopen = function() {
             console.log('WebSocket connection established');
         };
 
-        ws.onmessage = function(event) {
+        wss.onmessage = function(event) {
             console.log('WebSocket message received');
-            const blob = new Blob([event.data], { type: 'video/webm' });
+            const blob = new Blob([event.data], { type: 'data/webm' });
             video.src = URL.createObjectURL(blob);
             video.play();
         };
 
-        ws.onerror = function(error) {
+        wss.onerror = function(error) {
             console.error('WebSocket error:', error);
         };
 
-        ws.onclose = function() {
+        wss.onclose = function() {
             console.log('WebSocket connection closed');
         };
     </script>
