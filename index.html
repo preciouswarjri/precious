@@ -1,36 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Webcam Feed</title>
+    <title>Streamer</title>
 </head>
 <body>
-    <h1>Live Webcam Feed</h1>
-    <video id="video" width="640" height="480" autoplay></video>
-
+    <video autoplay></video>
     <script>
-        const video = document.getElementById('video');
-        const wss = new WebSocket('wss://10.42.0.1:1880/data');
+        // get video dom element
+        const server = window.location.hostname;
+        const video = document.querySelector('video');
+        
+        // request access to webcam
+        navigator.mediaDevices.getUserMedia({video: {width: 360, height: 240}}).then((stream) => video.srcObject = stream);
+        
+        // returns a frame encoded in base64
+        const getFrame = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const data = canvas.toDataURL('image/png');
+            return data;
+        }
 
-        wss.onopen = function() {
-            console.log('WebSocket connection established');
-        };
-
-        wss.onmessage = function(event) {
-            console.log('WebSocket message received');
-            const blob = new Blob([event.data], { type: 'video/webm' });
-            video.src = URL.createObjectURL(blob);
-            video.play();
-        };
-
-        wss.onerror = function(error) {
-            console.error('WebSocket error:', error);
-        };
-
-        wss.onclose = function() {
-            console.log('WebSocket connection closed');
-        };
+        const WS_URL = `wss://10.42.0.1:1880/data`;
+        console.log(WS_URL);
+        const FPS = 10;
+        const ws = new WebSocket(WS_URL);
+        ws.onopen = () => {
+            console.log(`Connected to ${WS_URL}`);
+            setInterval(() => {
+                ws.send(getFrame());
+            }, 1000 / FPS);
+        }
     </script>
 </body>
 </html>
