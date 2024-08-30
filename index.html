@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Feed</title>
+    <title>Live Video Feed</title>
     <style>
         body {
             margin: 0;
@@ -14,25 +14,40 @@
             height: 100vh;
             background-color: #000;
         }
-        img {
+        video {
             max-width: 100%;
             height: auto;
+            background-color: #000;
         }
     </style>
 </head>
 <body>
-    <img id="liveFeed" src="" alt="Live Feed">
+    <video id="liveFeed" autoplay playsinline></video>
     <script>
         // Create a WebSocket connection
-        const socket = new WebSocket('wss:/10.42.0.1:1880/data');
+        const socket = new WebSocket('wss:/10.42.0.0.1:1880/data');
 
-        // Get the image element
-        const img = document.getElementById('liveFeed');
+        // Get the video element
+        const video = document.getElementById('liveFeed');
 
-        // When a message is received from the server
+        // Create a MediaSource object and a source buffer
+        const mediaSource = new MediaSource();
+        let sourceBuffer;
+
+        // When the MediaSource is open, add a source buffer
+        mediaSource.addEventListener('sourceopen', () => {
+            sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8, vorbis"');
+            sourceBuffer.mode = 'sequence';
+        });
+
+        // Set the MediaSource object as the video source
+        video.src = URL.createObjectURL(mediaSource);
+
+        // Handle WebSocket messages
         socket.addEventListener('message', function(event) {
-            // Update the image source with the received data
-            img.src = 'data:image/jpeg;base64,' + event.data;
+            if (sourceBuffer && !sourceBuffer.updating) {
+                sourceBuffer.appendBuffer(new Uint8Array(event.data));
+            }
         });
 
         // Handle WebSocket errors
@@ -46,4 +61,5 @@
         });
     </script>
 </body>
-</html> intergrate these two html file
+</html>
+
