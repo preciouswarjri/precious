@@ -11,7 +11,7 @@
 
     <script>
         const video = document.getElementById('video');
-        const wss = new WebSocket('wss://10.42.0.1:1880/ui/data');
+        const wss = new WebSocket('wss://10.42.0.1:1880/data');
 
         wss.onopen = function() {
             console.log('WebSocket connection established');
