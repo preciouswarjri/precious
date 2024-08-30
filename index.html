@@ -14,7 +14,7 @@
         ws.binaryType = 'arraybuffer';
 
         ws.onmessage = (event) => {
-            const blob = new Blob([event.data], { type: 'video/mp4' });
+            const blob = new Blob([event.data], { type: 'video/webm' });
             const url = URL.createObjectURL(blob);
             video.src = url;
         };
