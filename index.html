@@ -25,28 +25,28 @@
     <video id="liveFeed" autoplay playsinline></video>
     <script>
         // Create a WebSocket connection
-        const socket = new WebSocket('wss:/10.42.0.1:1880/data');
+        const socket = new WebSocket('wss:/10.42.0.1:8080/data');
 
         // Get the video element
         const video = document.getElementById('liveFeed');
 
-        // Create a MediaSource object and a source buffer
-        const mediaSource = new MediaSource();
-        let sourceBuffer;
-
-        // When the MediaSource is open, add a source buffer
-        mediaSource.addEventListener('sourceopen', () => {
-            sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8, vorbis"');
-            sourceBuffer.mode = 'sequence';
-        });
-
-        // Set the MediaSource object as the video source
-        video.src = URL.createObjectURL(mediaSource);
+        // Variable to store the URL created from blobs
+        let videoSrc = null;
 
         // Handle WebSocket messages
         socket.addEventListener('message', function(event) {
-            if (sourceBuffer && !sourceBuffer.updating) {
-                sourceBuffer.appendBuffer(new Uint8Array(event.data));
+            if (event.data instanceof Blob) {
+                // Create an Object URL from the Blob
+                const blobUrl = URL.createObjectURL(event.data);
+                
+                // If a previous video source exists, revoke it
+                if (videoSrc) {
+                    URL.revokeObjectURL(videoSrc);
+                }
+
+                // Set the video source to the new Blob URL
+                video.src = blobUrl;
+                videoSrc = blobUrl;
             }
         });
 
@@ -62,4 +62,5 @@
     </script>
 </body>
 </html>
+
 
