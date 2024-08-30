@@ -3,34 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Webcam Feed</title>
+    <title>Live Video Feed</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+        }
+        video {
+            max-width: 100%;
+            height: auto;
+            background-color: #000;
+        }
+    </style>
 </head>
 <body>
-    <h1>Live Webcam Feed</h1>
-    <video id="video" width="640" height="480" autoplay></video>
-
+    <video id="liveFeed" autoplay playsinline></video>
     <script>
-        const video = document.getElementById('video');
-        const wss = new WebSocket('wss://10.42.0.1:1880/data');
+        // Create a WebSocket connection
+        const socket = new WebSocket('wss:/10.42.0.1:1880/data');
 
-        wss.onopen = function() {
-            console.log('WebSocket connection established');
-        };
+        // Get the video element
+        const video = document.getElementById('liveFeed');
 
-        wss.onmessage = function(event) {
-            console.log('WebSocket message received');
-            const blob = new Blob([event.data], { type: 'video/webm' });
-            video.src = URL.createObjectURL(blob);
-            video.play();
-        };
+        // Create a MediaSource object and a source buffer
+        const mediaSource = new MediaSource();
+        let sourceBuffer;
 
-        wss.onerror = function(error) {
+        // When the MediaSource is open, add a source buffer
+        mediaSource.addEventListener('sourceopen', () => {
+            sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8, vorbis"');
+            sourceBuffer.mode = 'sequence';
+        });
+
+        // Set the MediaSource object as the video source
+        video.src = URL.createObjectURL(mediaSource);
+
+        // Handle WebSocket messages
+        socket.addEventListener('message', function(event) {
+            if (sourceBuffer && !sourceBuffer.updating) {
+                sourceBuffer.appendBuffer(new Uint8Array(event.data));
+            }
+        });
+
+        // Handle WebSocket errors
+        socket.addEventListener('error', function(error) {
             console.error('WebSocket error:', error);
-        };
-
-        wss.onclose = function() {
+        });
+        // Handle WebSocket connection closure
+        socket.addEventListener('close', function() {
             console.log('WebSocket connection closed');
-        };
+        });
     </script>
 </body>
 </html>
