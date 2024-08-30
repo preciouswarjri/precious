@@ -11,7 +11,7 @@
 
     <script>
         const video = document.getElementById('video');
-        const wss = new WebSocket('wss:/10.42.0.1:1880/data');
+        const wss = new WebSocket('wss://10.42.0.1:1880/data');
 
         wss.onopen = function() {
             console.log('WebSocket connection established');
@@ -19,7 +19,7 @@
 
         wss.onmessage = function(event) {
             console.log('WebSocket message received');
-            const blob = new Blob([event.data], { type: 'data/webm' });
+            const blob = new Blob([event.data], { type: 'video/webm' });
             video.src = URL.createObjectURL(blob);
             video.play();
         };
