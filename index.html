@@ -1,31 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket Video Streaming</title>
+    <title>Live Webcam Stream</title>
 </head>
 <body>
-    <video id="video" controls autoplay></video>
+    <h1>Live Webcam Stream</h1>
+    <video id="video" autoplay></video>
     <script>
-        // Replace with the URL of your Node-RED server
         const video = document.getElementById('video');
         const ws = new WebSocket('wss://10.42.0.1:1880/data');
 
-        ws.binaryType = 'arraybuffer';
-
-        ws.onmessage = (event) => {
+        ws.onmessage = function(event) {
             const blob = new Blob([event.data], { type: 'video/webm' });
-            const url = URL.createObjectURL(blob);
-            video.src = url;
-        };
-
-        ws.onopen = () => {
-            console.log('WebSocket connection opened');
-        };
-
-        ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
+            video.src = URL.createObjectURL(blob);
         };
     </script>
 </body>
