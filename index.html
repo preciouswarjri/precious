@@ -12,21 +12,4 @@
             document.getElementById('webcam').src = 'data:image/jpeg;base64,' + event.data;
         };
     </script>
-    const WebSocket = require('ws');
-const wss = new WebSocket.Server({ wss://10.42.0.1:8080/data });
-
-wss.on('connection', function connection(ws) {
-    ws.on('message', function incoming(message) {
-        console.log('received: %s', message);
-        // Broadcast to all clients
-        wss.clients.forEach(function each(client) {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(message);
-            }
-        });
-    });
-});
-
-console.log('WebSocket server is running on wss://10.42.0.1:8080/data');
-</body>
 </html>
