@@ -1,34 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Webcam Stream</title>
 </head>
 <body>
-    <video autoplay></video>
+    <h1>Webcam Stream</h1>
+    <img id="webcam" src="" alt="Webcam Stream">
     <script>
-        const server = window.location.hostname;
-        const video = document.querySelector('video');
-        navigator.mediaDevices.getUserMedia({video: {width: 360, height: 240}}).then((stream) => video.srcObject = stream);
-        const getFrame = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            const data = canvas.toDataURL('image/png');
-            return data;
-        }
-        const WS_URL = `wss://10.42.0.1:1880/data`;
-        console.log(WS_URL);
-        const FPS = 10;
-        const ws = new WebSocket(WS_URL);
-        ws.onopen = () => {
-            console.log(`Connected to ${WS_URL}`);
-            setInterval(() => {
-                ws.send(getFrame());
-            }, 1000 / FPS);
-        }
+        const ws = new WebSocket('ws://localhost:8080');
+        ws.onmessage = function(event) {
+            document.getElementById('webcam').src = 'data:image/jpeg;base64,' + event.data;
+        };
     </script>
+    const WebSocket = require('ws');
+const wss = new WebSocket.Server({ wss://10.42.0.1:8080/data });
+
+wss.on('connection', function connection(ws) {
+    ws.on('message', function incoming(message) {
+        console.log('received: %s', message);
+        // Broadcast to all clients
+        wss.clients.forEach(function each(client) {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
+        });
+    });
+});
+
+console.log('WebSocket server is running on wss://10.42.0.1:8080/data');
 </body>
 </html>
