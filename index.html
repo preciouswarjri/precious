@@ -1,35 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webcam Stream</title>
+  <title>Webcam Stream</title>
 </head>
 <body>
-    <h1>Webcam Stream</h1>
-    <video id="video" width="640" height="480" autoplay></video>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-    const video = document.getElementById('video');
-    const socket = io();
-
-    socket.on('video-stream', (data) => {
-        const blob = new Blob([data], { type: 'video/webm' });
-        video.src = URL.createObjectURL(blob);
-    });
-
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then((stream) => {
-            video.srcObject = stream;
-            const mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.ondataavailable = (event) => {
-                socket.emit('video-stream', event.data);
-            };
-            mediaRecorder.start(100);
-        })
-        .catch((err) => {
-            console.error('Error accessing webcam: ', err);
-        });
-    </script>
+  <img id="webcam" src="/webcam" alt="Webcam Stream">
+  <script>
+    setInterval(function() {
+      document.getElementById('webcam').src = '/webcam?' + new Date().getTime();
+    }, 1000);
+  </script>
 </body>
 </html>
