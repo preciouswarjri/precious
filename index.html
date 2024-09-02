@@ -1,37 +1,17 @@
 <html>
 <head>
-    <title>Streamer</title>
+    <title>Video Stream</title>
 </head>
 <body>
-    <video autoplay></video>
+    <h1>Video Stream</h1>
+    <img id="videoStream" style="width: 100%;" />
     <script>
-        // get video dom element
-        const server = window.location.hostname;
-        const video = document.querySelector('video');
-
-        // request access to webcam
-        navigator.mediaDevices.getUserMedia({video: {width: 360, height: 240}}).then((stream) => video.srcObject = stream);
-
-        // returns a frame encoded in base64
-        const getFrame = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            const data = canvas.toDataURL('image/png');
-            return data;
-        }
-
-        const WS_URL = `wss://127.0.0.1:1880/data`;
-        console.log(WS_URL);
-        const FPS = 10;
+        const WS_URL = `wss://127.0.0:1880/data`;
+        const videoStream = document.getElementById('videoStream');
         const ws = new WebSocket(WS_URL);
-        ws.onopen = () => {
-            console.log(`Connected to ${WS_URL}`);
-            setInterval(() => {
-                ws.send(getFrame());
-            }, 1000 / FPS);
-        }
+        ws.onmessage = (event) => {
+            videoStream.src = URL.createObjectURL(event.data);
+        };
     </script>
 </body>
 </html>
