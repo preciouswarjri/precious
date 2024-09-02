@@ -1,37 +1,16 @@
+<!DOCTYPE html>
 <html>
-<head>
-    <title>Streamer</title>
-</head>
-<body>
-    <video autoplay></video>
-    <script>
-        // get video dom element
-        const server = window.location.hostname;
-        const video = document.querySelector('video');
-        
-        // request access to webcam
-        navigator.mediaDevices.getUserMedia({video: {width: 360, height: 240}}).then((stream) => video.srcObject = stream);
-        
-        // returns a frame encoded in base64
-        const getFrame = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            const data = canvas.toDataURL('image/png');
-            return data;
-        }
 
-        const WS_URL = `wss://127.0.0.1:1880/data`;
-        console.log(WS_URL);
-        const FPS = 10;
-        const ws = new WebSocket(WS_URL);
-        ws.onopen = () => {
-            console.log(`Connected to ${WS_URL}`);
-            setInterval(() => {
-                ws.send(getFrame());
-            }, 1000 / FPS);
-        }
-    </script>
+<head>
+    <title>Live TV Stream</title>
+</head>
+
+<body>
+    <h1>Live TV Stream</h1>
+    <video id="videoStream" width="800" height="600" controls autoplay>
+        <source src="http://localhost:8080/stream" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 </body>
+
 </html>
