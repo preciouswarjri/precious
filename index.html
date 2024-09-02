@@ -7,7 +7,7 @@
     <h1>Webcam Stream</h1>
     <img id="webcam" src="" alt="Webcam Stream">
     <script>
-        const ws = new WebSocket('ws://localhost:8080');
+        const ws = new WebSocket('wss://10.42.0.1:8080/data');
         ws.onmessage = function(event) {
             document.getElementById('webcam').src = 'data:image/jpeg;base64,' + event.data;
         };
