@@ -10,21 +10,26 @@
     <video id="video" width="640" height="480" autoplay></video>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const video = document.getElementById('video');
-        const socket = io();
+    const video = document.getElementById('video');
+    const socket = io();
 
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
-                video.srcObject = stream;
-                const mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = (event) => {
-                    socket.emit('video-stream', event.data);
-                };
-                mediaRecorder.start(100);
-            })
-            .catch((err) => {
-                console.error('Error accessing webcam: ', err);
-            });
+    socket.on('video-stream', (data) => {
+        const blob = new Blob([data], { type: 'video/webm' });
+        video.src = URL.createObjectURL(blob);
+    });
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+            video.srcObject = stream;
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = (event) => {
+                socket.emit('video-stream', event.data);
+            };
+            mediaRecorder.start(100);
+        })
+        .catch((err) => {
+            console.error('Error accessing webcam: ', err);
+        });
     </script>
 </body>
 </html>
