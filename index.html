@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Video Stream</title>
@@ -6,11 +7,29 @@
     <h1>Video Stream</h1>
     <img id="videoStream" style="width: 100%;" />
     <script>
-        const WS_URL = `wss://127.0.0.1:1880/data`;
+        const WS_URL = `wss://127.0.0.1:1880/data`;  // Update this URL as necessary
         const videoStream = document.getElementById('videoStream');
         const ws = new WebSocket(WS_URL);
+
+        ws.binaryType = 'arraybuffer';  // Handle binary data
+
         ws.onmessage = (event) => {
-            videoStream.src = URL.createObjectURL(event.data);
+            const arrayBuffer = event.data;
+            const blob = new Blob([arrayBuffer], { type: 'image/jpeg' });  // Adjust MIME type as needed
+            const url = URL.createObjectURL(blob);
+            videoStream.src = url;
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket Error:', error);
+        };
+
+        ws.onopen = () => {
+            console.log('WebSocket connection opened');
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
         };
     </script>
 </body>
