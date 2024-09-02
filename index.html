@@ -1,15 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Webcam Stream</title>
+    <title>WebSocket Client</title>
 </head>
 <body>
-    <h1>Webcam Stream</h1>
-    <img id="webcam" src="" alt="Webcam Stream">
+    <h1>WebSocket Client</h1>
+    <input type="text" id="messageInput" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+    <ul id="messages"></ul>
+
     <script>
         const ws = new WebSocket('wss://10.42.0.1:8080/data');
-        ws.onmessage = function(event) {
-            document.getElementById('webcam').src = 'data:image/jpeg;base64,' + event.data;
+
+        ws.onopen = function() {
+            console.log('Connected to WebSocket server');
         };
+
+        ws.onmessage = function(event) {
+            const messages = document.getElementById('messages');
+            const message = document.createElement('li');
+            message.textContent = event.data;
+            messages.appendChild(message);
+        };
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            ws.send(input.value);
+            input.value = '';
+        }
     </script>
+</body>
 </html>
