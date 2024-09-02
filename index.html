@@ -1,33 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>WebSocket Client</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Stream</title>
 </head>
 <body>
-    <h1>WebSocket Client</h1>
-    <input type="text" id="messageInput" placeholder="Type a message">
-    <button onclick="sendMessage()">Send</button>
-    <ul id="messages"></ul>
-
+    <h1>Webcam Stream</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-        const ws = new WebSocket('wss://127.0.0.1:1880/data');
+        const video = document.getElementById('video');
+        const socket = io();
 
-        ws.onopen = function() {
-            console.log('Connected to WebSocket server');
-        };
-
-        ws.onmessage = function(event) {
-            const messages = document.getElementById('messages');
-            const message = document.createElement('li');
-            message.textContent = event.data;
-            messages.appendChild(message);
-        };
-
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            ws.send(input.value);
-            input.value = '';
-        }
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+                const mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = (event) => {
+                    socket.emit('video-stream', event.data);
+                };
+                mediaRecorder.start(100);
+            })
+            .catch((err) => {
+                console.error('Error accessing webcam: ', err);
+            });
     </script>
 </body>
 </html>
