@@ -5,14 +5,22 @@
 <body>
     <video autoplay></video>
     <script>
-        // get video dom element
-        const server = window.location.hostname;
-        const video = document.querySelector('video');
+       // URL where Node-RED serves the video stream
+        const nodeRedStreamUrl = 'https://127.0.0.1:1880/video-stream';
 
-        // request access to webcam
-        navigator.mediaDevices.getUserMedia({video: {width: 360, height: 240}}).then((stream) => video.srcObject = stream);
+        // Get the video DOM element
+        const video = document.getElementById('video');
 
-        // returns a frame encoded in base64
+        // Set up the video element with the Node-RED video stream
+        const setupNodeRedVideoStream = (url) => {
+            video.src = url;
+            video.autoplay = true; // Ensure the video plays automatically
+        };
+
+        // Call the function to set up the video element
+        setupNodeRedVideoStream(nodeRedStreamUrl);
+
+        // Function to capture a frame and return it as a base64-encoded image
         const getFrame = () => {
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
@@ -20,7 +28,7 @@
             canvas.getContext('2d').drawImage(video, 0, 0);
             const data = canvas.toDataURL('image/png');
             return data;
-        }
+        };
 
         const WS_URL = `wss://127.0.0.1:1880/data`;
         console.log(WS_URL);
